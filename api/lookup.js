@@ -13,7 +13,11 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const url = `https://markbase.co/trademark/${num}`;
+    const query = type === 'rn' 
+      ? `registrationNumber:${num}` 
+      : `serialNumber:${num}`;
+    
+    const url = `https://tmsearch.uspto.gov/search/search-results?searchTerm=${encodeURIComponent(query)}&dateRangeField=&startDateFilter=&endDateFilter=&rows=1&start=0&sort=score+desc&searchType=basic`;
 
     const response = await fetch(url, {
       headers: { 
