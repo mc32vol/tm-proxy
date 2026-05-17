@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TM Docket — JAA Property Holdings</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; padding: 2rem 1rem; min-height: 100vh; }
+  .container { max-width: 800px; margin: 0 auto; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .topbar h1 { font-size: 20px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .topbar h1 svg { opacity: 0.6; }
+  .updated { font-size: 12px; color: #888; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .stat { background: #fff; border: 0.5px solid #e5e5e3; border-radius: 8px; padding: 12px 16px; }
+  .stat-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .stat-val { font-size: 24px; font-weight: 500; }
+  .stat-val.warn { color: #c0392b; }
+  .mark-card { background: #fff; border: 0.5px solid #e5e5e3; border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+  .mark-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; transition: background 0.15s; }
+  .mark-header:hover { background: #f9f9f7; }
+  .mark-title { flex: 1; min-width: 0; }
+  .mark-name { font-size: 15px; font-weight: 500; }
+  .mark-sub { font-size: 12px; color: #888; margin-top: 3px; }
+  .mark-body { border-top: 0.5px solid #e5e5e3; padding: 16px; display: none; }
+  .mark-body.open { display: block; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; margin-bottom: 16px; }
+  .info-label { font-size: 11px; color: #888; margin-bottom: 2px; }
+  .info-val { font-size: 13px; font-weight: 500; }
+  .dl-section-title { font-size: 12px; font-weight: 500; color: #888; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .dl-item { display: flex; align-items: flex-start; gap: 12px; padding: 7px 0; border-top: 0.5px solid #e5e5e3; font-size: 12px; }
+  .dl-date { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; min-width: 105px; color: #888; padding-top: 1px; }
+  .dl-date.urgent { color: #c0392b; font-weight: 600; }
+  .dl-desc { flex: 1; line-height: 1.5; color: #333; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
+  .b-reg { background: #e6f1fb; color: #0c447c; }
+  .b-pending { background: #faeeda; color: #633806; }
+  .b-urgent { background: #fcebeb; color: #791f1f; }
+  .mark-actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
+  .icon-btn { background: none; border: none; cursor: pointer; padding: 5px 7px; border-radius: 6px; color: #888; font-size: 14px; line-height: 1; text-decoration: none; display: inline-flex; align-items: center; }
+  .icon-btn:hover { background: #f0f0ee; }
+  .chev { font-size: 14px; color: #bbb; transition: transform 0.2s; flex-shrink: 0; }
+  .notes-input { width: 100%; border: 0.5px solid #e5e5e3; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-family: inherit; background: #f9f9f7; color: #1a1a1a; resize: none; margin-top: 12px; }
+  .notes-input:focus { outline: none; border-color: #aaa; }
+  .footer { font-size: 11px; color: #aaa; margin-top: 1.5rem; text-align: center; line-height: 1.8; }
+  @media (max-width: 500px) { .info-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <h1>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      TM Docket
+    </h1>
+    <span class="updated" id="lastUpdated"></span>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div id="markList"></div>
+
+  <div class="footer">
+    Data sourced from USPTO TSDR &nbsp;·&nbsp; Click any mark to expand &nbsp;·&nbsp; Notes saved in browser &nbsp;·&nbsp; <a href="https://tsdr.uspto.gov/" target="_blank" style="color:#888">Open TSDR</a>
+  </div>
+</div>
+
+<script>
+const MARKS = [
+  {
+    id: 1, serialNum: '99226582', regNum: null,
+    markName: 'STAY ON THE GAS', owner: 'JAA Property Holdings LLC',
+    status: 'Non-final office action', registered: false,
+    filingDate: 'Jun. 10, 2025', classes: '025',
+    goods: 'T-shirts; Hats; Hoodies',
+    deadlines: [
+      { date: '2026-08-04', description: 'Response to non-final office action due' }
+    ]
+  },
+  {
+    id: 2, serialNum: '99226648', regNum: '8102997',
+    markName: 'STAY ON THE GAS', owner: 'JAA Property Holdings LLC',
+    status: 'Registered', registered: true,
+    filingDate: 'Jun. 10, 2025', classes: '035',
+    goods: 'Real estate marketing services',
+    deadlines: [
+      { date: '2031-01-13', description: '§8 declaration — earliest filing date' },
+      { date: '2032-01-13', description: '§8 declaration — latest (no surcharge)' },
+      { date: '2032-07-13', description: '§8 declaration — latest (with surcharge)' }
+    ]
+  },
+  {
+    id: 3, serialNum: '99226639', regNum: '8102995',
+    markName: 'VISIT INLAND EMPIRE', owner: 'JAA Property Holdings LLC',
+    status: 'Registered', registered: true,
+    filingDate: 'Jun. 10, 2025', classes: '035',
+    goods: 'Promoting tourism in the Inland Empire',
+    deadlines: [
+      { date: '2031-01-13', description: '§8 declaration — earliest filing date' },
+      { date: '2032-01-13', description: '§8 declaration — latest (no surcharge)' },
+      { date: '2032-07-13', description: '§8 declaration — latest (with surcharge)' }
+    ]
+  },
+  {
+    id: 4, serialNum: '97195657', regNum: '6963386',
+    markName: 'WATER', owner: 'Water Watch Holdings Co.',
+    status: 'Registered', registered: true,
+    filingDate: 'Dec. 29, 2021', classes: '014',
+    goods: 'Jewelry; Bead bracelets; Bracelets',
+    deadlines: [
+      { date: '2028-01-24', description: '§8 declaration — earliest filing date' },
+      { date: '2029-01-24', description: '§8 declaration — latest (no surcharge)' },
+      { date: '2029-07-24', description: '§8 declaration — latest (with surcharge)' }
+    ]
+  }
+];
+
+let notes = JSON.parse(localStorage.getItem('tmNotesStandalone') || '{}');
+let expanded = {};
+
+function saveNotes() { localStorage.setItem('tmNotesStandalone', JSON.stringify(notes)); }
+
+function fmtDate(s) {
+  const d = new Date(s + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function daysUntil(s) {
+  const d = new Date(s + 'T00:00:00');
+  const t = new Date(); t.setHours(0,0,0,0);
+  return Math.round((d - t) / 86400000);
+}
+
+function tsdrUrl(m) {
+  return 'https://tsdr.uspto.gov/#caseNumber=' + m.serialNum + '&caseSearchType=US_APPLICATION&caseType=DEFAULT&searchType=statusSearch';
+}
+
+function statusBadge(m) {
+  if (!m.registered) {
+    const n = daysUntil('2026-08-04');
+    const cls = n <= 90 ? 'b-urgent' : 'b-pending';
+    return '<span class="badge ' + cls + '">⚠ Office action · ' + n + 'd left</span>';
+  }
+  return '<span class="badge b-reg">✓ Registered</span>';
+}
+
+function renderCard(m) {
+  const dls = [...m.deadlines].sort((a,b) => new Date(a.date) - new Date(b.date));
+  const dlHtml = dls.map(d => {
+    const days = daysUntil(d.date);
+    const isUrgent = days >= 0 && days <= 180;
+    const overdue = days < 0;
+    const cls = (isUrgent || overdue) ? 'dl-date urgent' : 'dl-date';
+    const tag = overdue ? ' (overdue)' : isUrgent ? ' (' + days + 'd)' : '';
+    return '<div class="dl-item"><span class="' + cls + '">' + fmtDate(d.date) + tag + '</span><span class="dl-desc">' + d.description + '</span></div>';
+  }).join('');
+
+  const noteVal = (notes[m.id] || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const isOpen = expanded[m.id];
+
+  return '<div class="mark-card">' +
+    '<div class="mark-header" onclick="toggleExpand(' + m.id + ')">' +
+      '<div class="mark-title">' +
+        '<div class="mark-name">' + m.markName + '</div>' +
+        '<div class="mark-sub">Serial ' + m.serialNum + (m.regNum ? ' · Reg ' + m.regNum : '') + ' · IC ' + m.classes + '</div>' +
+      '</div>' +
+      '<div class="mark-actions">' +
+        statusBadge(m) +
+        '<a class="icon-btn" href="' + tsdrUrl(m) + '" target="_blank" title="Open in TSDR" onclick="event.stopPropagation()">↗</a>' +
+        '<span id="chev-' + m.id + '" class="chev" style="' + (isOpen ? 'transform:rotate(180deg)' : '') + '">▾</span>' +
+      '</div>' +
+    '</div>' +
+    '<div id="body-' + m.id + '" class="mark-body' + (isOpen ? ' open' : '') + '">' +
+      '<div class="info-grid">' +
+        '<div><div class="info-label">Serial number</div><div class="info-val">' + m.serialNum + '</div></div>' +
+        '<div><div class="info-label">Reg number</div><div class="info-val">' + (m.regNum || '—') + '</div></div>' +
+        '<div><div class="info-label">Filing date</div><div class="info-val">' + m.filingDate + '</div></div>' +
+        '<div><div class="info-label">Status</div><div class="info-val">' + m.status + '</div></div>' +
+        '<div style="grid-column:1/-1"><div class="info-label">Owner</div><div class="info-val" style="font-weight:400">' + m.owner + '</div></div>' +
+        '<div style="grid-column:1/-1"><div class="info-label">Goods &amp; services (IC ' + m.classes + ')</div><div class="info-val" style="font-weight:400;font-size:12px">' + m.goods + '</div></div>' +
+      '</div>' +
+      '<div class="dl-section-title">📅 Deadlines</div>' +
+      dlHtml +
+      '<textarea class="notes-input" rows="2" placeholder="Add notes…" onchange="saveNote(' + m.id + ', this.value)">' + noteVal + '</textarea>' +
+    '</div>' +
+  '</div>';
+}
+
+function toggleExpand(id) {
+  expanded[id] = !expanded[id];
+  const body = document.getElementById('body-' + id);
+  const chev = document.getElementById('chev-' + id);
+  if (body) body.classList.toggle('open', expanded[id]);
+  if (chev) chev.style.transform = expanded[id] ? 'rotate(180deg)' : '';
+}
+
+function saveNote(id, val) { notes[id] = val; saveNotes(); }
+
+function renderStats() {
+  const regs = MARKS.filter(m => m.registered).length;
+  const pending = MARKS.filter(m => !m.registered).length;
+  const urgent = MARKS.filter(m => m.deadlines.some(d => { const n = daysUntil(d.date); return n >= 0 && n <= 180; })).length;
+  document.getElementById('stats').innerHTML =
+    '<div class="stat"><div class="stat-label">Total marks</div><div class="stat-val">' + MARKS.length + '</div></div>' +
+    '<div class="stat"><div class="stat-label">Registered</div><div class="stat-val">' + regs + '</div></div>' +
+    '<div class="stat"><div class="stat-label">Pending</div><div class="stat-val">' + pending + '</div></div>' +
+    '<div class="stat"><div class="stat-label">Deadlines ≤180d</div><div class="stat-val' + (urgent ? ' warn' : '') + '">' + urgent + '</div></div>';
+  document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function render() {
+  renderStats();
+  document.getElementById('markList').innerHTML = MARKS.map(renderCard).join('');
+}
+
+render();
+</script>
+</body>
+</html>
