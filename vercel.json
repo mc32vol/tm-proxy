@@ -1,8 +1,1 @@
-{
-  "functions": {
-    "api/lookup.js": {
-      "maxDuration": 10
-    }
-  }
-}
-
+{}
