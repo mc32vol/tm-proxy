@@ -13,14 +13,13 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const searchType = type === 'rn' ? 'US_REGISTRATION' : 'US_APPLICATION';
-    const url = `https://tsdr.uspto.gov/cgi-bin/tsdr/getTsdrData.pl?importId=${num}&type=${searchType}&action=getStatus&format=json`;
+    const field = type === 'rn' ? 'registrationNumber' : 'serialNumber';
+    const url = `https://trademark.uspto.gov/trademark/rest/application/${field}/${num}`;
 
     const tsdrRes = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'application/json, text/plain, */*',
-        'Referer': 'https://tsdr.uspto.gov/'
+        'User-Agent': 'Mozilla/5.0',
+        'Accept': 'application/json'
       }
     });
 
