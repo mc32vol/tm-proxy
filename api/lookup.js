@@ -13,8 +13,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const field = type === 'rn' ? 'registration_number' : 'serial_number';
-    const url = `https://markbase.co/api/v1/trademarks?${field}=${num}`;
+    const url = `https://markbase.co/trademark/${num}`;
 
     const response = await fetch(url, {
       headers: { 
