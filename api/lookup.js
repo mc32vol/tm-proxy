@@ -17,7 +17,6 @@ module.exports = async function handler(req, res) {
   const tsdrUrl = `https://tsdrapi.uspto.gov/ts/cd/casestatus/${type}${num}/info.json`;
 
   try {
-    const fetch = (await import('node-fetch')).default;
     const tsdrRes = await fetch(tsdrUrl, {
       headers: { 'USPTO-API-KEY': TSDR_KEY, 'Accept': 'application/json' }
     });
