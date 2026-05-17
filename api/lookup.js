@@ -14,14 +14,13 @@ module.exports = async function handler(req, res) {
   }
 
   const TSDR_KEY = 'xcipuguxayfhzfdstqkijjjldgvpvk';
-  const tsdrUrl = `https://tsdrapi.uspto.gov/ts/cd/casestatus/sn${num}/info.json`;
+  const tsdrUrl = `https://tsdrapi.uspto.gov/ts/cd/casestatus/${type}${num}/info.xml`;
 
   try {
     const tsdrRes = await fetch(tsdrUrl, {
       headers: {
         'USPTO-API-KEY': TSDR_KEY,
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0'
+        'Accept': 'application/xml'
       }
     });
     const text = await tsdrRes.text();
