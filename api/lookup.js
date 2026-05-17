@@ -1,41 +1,29 @@
-export default async function handler(req) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
+module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return res.status(204).end();
   }
 
-  const { searchParams } = new URL(req.url);
-  const num = searchParams.get('num');
-  const type = searchParams.get('type');
+  const { num, type } = req.query;
 
   if (!num || !type) {
-    return new Response(JSON.stringify({ error: 'Missing num or type' }), {
-      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    return res.status(400).json({ error: 'Missing num or type' });
   }
 
   const TSDR_KEY = 'xcipuguxayfhzfdstqkijjjldgvpvk';
   const tsdrUrl = `https://tsdrapi.uspto.gov/ts/cd/casestatus/${type}${num}/info.json`;
 
   try {
+    const fetch = (await import('node-fetch')).default;
     const tsdrRes = await fetch(tsdrUrl, {
       headers: { 'USPTO-API-KEY': TSDR_KEY, 'Accept': 'application/json' }
     });
-    const text = await tsdrRes.text();
-    return new Response(text, {
-      status: tsdrRes.status,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    const data = await tsdrRes.json();
+    return res.status(tsdrRes.status).json(data);
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    return res.status(500).json({ error: err.message });
   }
-}
-
-export const config = { runtime: 'edge' };
+};
