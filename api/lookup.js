@@ -1,15 +1,12 @@
-export const config = { runtime: 'edge' };
-
 export default async function handler(req) {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    });
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
   const { searchParams } = new URL(req.url);
@@ -17,9 +14,8 @@ export default async function handler(req) {
   const type = searchParams.get('type');
 
   if (!num || !type) {
-    return new Response(JSON.stringify({ error: 'Missing num or type param' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    return new Response(JSON.stringify({ error: 'Missing num or type' }), {
+      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 
@@ -28,33 +24,18 @@ export default async function handler(req) {
 
   try {
     const tsdrRes = await fetch(tsdrUrl, {
-      headers: {
-        'USPTO-API-KEY': TSDR_KEY,
-        'Accept': 'application/json',
-      },
+      headers: { 'USPTO-API-KEY': TSDR_KEY, 'Accept': 'application/json' }
     });
-
-    if (!tsdrRes.ok) {
-      const errText = await tsdrRes.text();
-      return new Response(JSON.stringify({ error: `TSDR error ${tsdrRes.status}`, detail: errText }), {
-        status: tsdrRes.status,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      });
-    }
-
-    const data = await tsdrRes.json();
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 's-maxage=3600',
-      },
+    const text = await tsdrRes.text();
+    return new Response(text, {
+      status: tsdrRes.status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Proxy fetch failed', detail: err.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 }
+
+export const config = { runtime: 'edge' };
