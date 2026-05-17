@@ -13,17 +13,14 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const field = type === 'rn' ? 'registrationNumber' : 'serialNumber';
-    const url = `https://trademark.uspto.gov/trademark/rest/application/${field}/${num}`;
+    const field = type === 'rn' ? 'registration_number' : 'serial_number';
+    const url = `https://markbase.co/trademarks?${field}=${num}`;
 
-    const tsdrRes = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0',
-        'Accept': 'application/json'
-      }
+    const response = await fetch(url, {
+      headers: { 'Accept': 'application/json' }
     });
 
-    const text = await tsdrRes.text();
+    const text = await response.text();
     return res.status(200).send(text);
   } catch (err) {
     return res.status(500).json({ error: err.message });
