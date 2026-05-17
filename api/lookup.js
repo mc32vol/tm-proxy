@@ -17,12 +17,13 @@ module.exports = async function handler(req, res) {
       ? `registrationNumber:${num}` 
       : `serialNumber:${num}`;
     
-    const url = `https://tmsearch.uspto.gov/search/search-results?searchTerm=${encodeURIComponent(query)}&dateRangeField=&startDateFilter=&endDateFilter=&rows=1&start=0&sort=score+desc&searchType=basic`;
+    const url = `https://tmsearch.uspto.gov/search/api/search-results?searchTerm=${encodeURIComponent(query)}&rows=1&start=0&sort=score+desc&searchType=basic`;
 
     const response = await fetch(url, {
       headers: { 
         'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0'
+        'User-Agent': 'Mozilla/5.0',
+        'Referer': 'https://tmsearch.uspto.gov/'
       }
     });
 
