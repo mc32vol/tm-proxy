@@ -20,8 +20,8 @@ module.exports = async function handler(req, res) {
     const tsdrRes = await fetch(tsdrUrl, {
       headers: { 'USPTO-API-KEY': TSDR_KEY, 'Accept': 'application/json' }
     });
-    const data = await tsdrRes.json();
-    return res.status(tsdrRes.status).json(data);
+    const text = await tsdrRes.text();
+    return res.status(200).send(text);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
